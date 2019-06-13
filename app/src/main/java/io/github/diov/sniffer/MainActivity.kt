@@ -1,8 +1,18 @@
 package io.github.diov.sniffer
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import kotlinx.android.synthetic.main.activity_main.*
+import android.os.Handler
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.postDelayed
+import com.topjohnwu.superuser.Shell
+import java.io.File
+
+/**
+ * Sniffer
+ *
+ * Created by Dio_V on 2019-06-13.
+ * Copyright © 2019 diov.github.io. All rights reserved.
+ */
 
 class MainActivity : AppCompatActivity() {
 
@@ -10,21 +20,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Example of a call to a native method
-        sample_text.text = stringFromJNI()
+        confirmRootAccess()
     }
 
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-    external fun stringFromJNI(): String
+    private fun confirmRootAccess() {
+        Handler().postDelayed(1000) {
+            val execatable = File(applicationInfo.nativeLibraryDir, "netcat.so").absolutePath
+            val output = Shell.su(execatable).exec().out
+            println(output)
+        }
+    }
 
     companion object {
-
-        // Used to load the 'native-lib' library on application startup.
         init {
-            System.loadLibrary("native-lib")
+            Shell.Config.setFlags(Shell.FLAG_REDIRECT_STDERR)
+            Shell.Config.verboseLogging(BuildConfig.DEBUG)
+            Shell.Config.setTimeout(10)
         }
     }
 }

@@ -1,0 +1,3 @@
+[submodule "app/src/main/cpp/netcat"]
+	path = app/src/main/cpp/netcat
+	url = git@github.com:aosp-mirror/platform_external_netcat.git
