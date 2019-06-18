@@ -1,11 +1,9 @@
 package io.github.diov.sniffer
 
 import android.os.Bundle
-import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.postDelayed
-import com.topjohnwu.superuser.Shell
-import java.io.File
+import io.github.diov.sniffer.executor.SnifferExecutor
+import kotlinx.android.synthetic.main.activity_main.*
 
 /**
  * Sniffer
@@ -20,22 +18,28 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        confirmRootAccess()
-    }
-
-    private fun confirmRootAccess() {
-        Handler().postDelayed(1000) {
-            val execatable = File(applicationInfo.nativeLibraryDir, "netcat.so").absolutePath
-            val output = Shell.su(execatable).exec().out
-            println(output)
+        if (SnifferExecutor.checkAccess()) {
+            setupView()
         }
     }
 
-    companion object {
-        init {
-            Shell.Config.setFlags(Shell.FLAG_REDIRECT_STDERR)
-            Shell.Config.verboseLogging(BuildConfig.DEBUG)
-            Shell.Config.setTimeout(10)
+    private fun setupView() {
+        startButton.setOnClickListener {
+            SnifferExecutor.use {
+                it.start {
+                    println(this.isSuccess)
+                }
+            }
+        }
+        interfaceButton.setOnClickListener {
+            SnifferExecutor.getInterfaces {
+                print(this.stdout)
+            }
+        }
+        stopButton.setOnClickListener {
+            SnifferExecutor.use {
+                it.close()
+            }
         }
     }
 }
