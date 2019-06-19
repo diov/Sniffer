@@ -1,3 +1,7 @@
 [submodule "app/src/main/cpp/netcat"]
 	path = app/src/main/cpp/netcat
 	url = git@github.com:aosp-mirror/platform_external_netcat.git
+[submodule "app/src/main/cpp/pcapfix"]
+	path = app/src/main/cpp/pcapfix
+	url = git@github.com:Rup0rt/pcapfix.git
+	branch = v1.1.4

@@ -12,4 +12,22 @@ set_target_properties(
 
         PROPERTIES
         OUTPUT_NAME
-        "netcat.so")
+        "netcat.so"
+)
+
+add_executable(
+        pcapfix
+
+        pcapfix/pcap.c
+        pcapfix/pcap_kuznet.c
+        pcapfix/pcapng.c
+        pcapfix/pcapfix.c
+)
+
+set_target_properties(
+        pcapfix
+
+        PROPERTIES
+        OUTPUT_NAME
+        "pcapfix.so"
+)
