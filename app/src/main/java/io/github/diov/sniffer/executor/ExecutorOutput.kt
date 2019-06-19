@@ -9,5 +9,6 @@ package io.github.diov.sniffer.executor
 
 data class ExecutorOutput(
     val code: Int,
-    val stdout: List<String>
+    val stdout: List<String>,
+    val stderr: List<String>
 )

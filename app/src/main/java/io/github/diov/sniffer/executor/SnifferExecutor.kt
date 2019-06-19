@@ -2,7 +2,7 @@ package io.github.diov.sniffer.executor
 
 import com.topjohnwu.superuser.Shell
 import io.github.diov.sniffer.BuildConfig
-import io.github.diov.sniffer.misc.Executable
+import io.github.diov.sniffer.persistence.Profile
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -16,6 +16,8 @@ import kotlinx.coroutines.launch
 
 class SnifferExecutor {
     companion object {
+        const val TERMINAL_CODE = 143
+
         init {
             Shell.Config.setFlags(Shell.FLAG_REDIRECT_STDERR)
             Shell.Config.verboseLogging(BuildConfig.DEBUG)
@@ -41,22 +43,27 @@ class SnifferExecutor {
 
         fun getInterfaces(callback: (ExecutorOutput.() -> Unit)? = null) {
             val result = Shell.su("${Executable.TCPDUMP.absolutePath} -D").exec()
-            callback?.invoke(ExecutorOutput(result.code, result.out))
+            callback?.invoke(ExecutorOutput(result.code, result.out, result.err))
         }
 
-        fun stopSniffer(callback: (ExecutorOutput.() -> Unit)? = null) {
-            val result = Shell.su("killall tcpdump.so").exec()
-            callback?.invoke(ExecutorOutput(result.code, result.out))
+        fun stopSniffer() {
+            Executable.killAll()
         }
     }
 
     private val shell = Shell.newInstance("su")
     private val stdout = ArrayList<String>()
+    private val stderr = ArrayList<String>()
     private val isAlive get() = shell.isAlive
 
-    fun start(callback: Shell.Result.() -> Unit) {
+    fun start(profile: Profile): ExecutorOutput {
         stdout.clear()
-        shell.newJob().add("${Executable.TCPDUMP.absolutePath} -w /sdcard/1.pcap").to(stdout, stdout).submit(callback)
+        stderr.clear()
+        val command = CommandParser.parse(profile)
+        val result = shell.newJob()
+            .add(command)
+            .to(stdout, stderr).exec()
+        return ExecutorOutput(result.code, result.out, result.err)
     }
 
     fun close() {

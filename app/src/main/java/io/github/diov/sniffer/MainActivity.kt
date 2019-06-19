@@ -3,7 +3,10 @@ package io.github.diov.sniffer
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import io.github.diov.sniffer.executor.SnifferExecutor
+import io.github.diov.sniffer.persistence.Profile
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Sniffer
@@ -25,9 +28,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupView() {
         startButton.setOnClickListener {
-            SnifferExecutor.use {
-                it.start {
-                    println(this.isSuccess)
+            GlobalScope.launch {
+                SnifferExecutor.use {
+                    val result = it.start(Profile.default)
+                    if (result.code != SnifferExecutor.TERMINAL_CODE) {
+                        println("${result.code}, ${result.stdout}, ${result.stderr}")
+                    } else {
+                        println("Failed")
+                    }
                 }
             }
         }
